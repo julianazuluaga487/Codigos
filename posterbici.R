@@ -2,18 +2,24 @@ require(gamlss)
 require(MASS)
 require(MPV)
 
-bici1 <- read.csv(file= "day.csv", header = T, sep = ";")
-View(bici1)
-str(bici1)
-dim(bici1)
+# Se lee la base de datos completa 
+bici1 <- read.csv(file= "day.csv", header = T, sep = ";") 
+View(bici1) # para verla en R 
+str(bici1) # Contenido de la base de datos
+dim(bici1) # dimensión
+
+# Se extrae la base de datos solo para el 2012 sin la variable index 
+#sin la fecha y sin la variable holiday (debido a que se trabajará solo con workingday)
 
 bici <- subset(bici1, yr== "1", select = c(season,weekday,workingday,mnth,
                                           weathersit,temp,atemp,hum, 
                                           windspeed, cnt))
-View(bici)
+View(bici) # para verla en R
+dim(bici) # dimensión
+class(bici$cnt) # clase de la variable respuesta 
 
-class(bici$cnt)
-
+#Los siguientes códigos analizan cada clase de las variables
+#Surgen cambios debido a que estan mal clasificadas
 class(bici$temp)
 bici$temp <- as.numeric(as.character(sub("," , ".", bici$temp)))
 class(bici$temp)
@@ -51,6 +57,8 @@ class(bici$weathersit)
 bici$weathersit <- as.factor(bici$weathersit)
 class(bici$weathersit)
 
+#Realizamos los respectivos gráficos de cada variable vs el conteo
+#Tanto de variables cuantitativas como cualitativas
 par(mfrow=c(2,2))
 plot(x=bici$temp, y= bici$cnt, main='Temperatura vs conteo',
      xlab= 'Temperatura', ylab='Conteo')
@@ -67,7 +75,7 @@ plot(bici$workingday,bici$cnt)
 plot(bici$weathersit,bici$cnt)
 
 
-###
+#Observamos valores max, min, mean y sd de algunas variables
 max(bici$temp)
 min(bici$temp)
 mean(bici$temp)
@@ -89,12 +97,7 @@ mean(bici$windspeed)
 sd(bici$windspeed)
 
 
-primavera <- subset(bici12, season== "1")
-verano <- subset(bici12, season== "2")
-otoño <- subset(bici12, season== "3")
-invierno <- subset(bici12, season== "4")
- sum(primavera$cnt)
-
+#Se crean tablas de algunas relaciones de variables con el conteo
 
 library(dplyr)
 bicitemw <- bici %>%
@@ -130,8 +133,7 @@ biciesta <- bici %>%
     cnt = sum(cnt))
 biciesta
 
-
-
+# Se analiza multicolinialidad de las variables cuantitativas
 
 require(usdm)
 require(mctest)
@@ -154,17 +156,15 @@ omcdiag(x,y)
 imcdiag(x,y)
 mc.plot(x,y)
 
+# Se extrae la correlación
 cor(x,y)
 
-# Esto se hizo para mirar si la variable weekday
+# Esto se hizo para mirar si la variable días de la semana
 # mostraba cambio con respecto a los meses
-bici12 <- subset(bici1, yr=="1") 
-View(bici12)
+bici12 <- subset(bici1, yr=="1", select= c(mnth,weekday,cnt)) #base con solo meses, días y conteo
+View(bici12) #ver la base de datos
 
-class(bici12$yr)
-bici12$yr <- as.factor(bici12$yr)
-class(bici12$yr)
-
+# Se cambia la clase de la variable 
 class(bici12$mnth)
 bici12$mnth <- as.factor(bici12$mnth)
 class(bici12$mnth)
@@ -173,7 +173,7 @@ class(bici12$weekday)
 bici12$weekday <- as.factor(bici12$weekday)
 class(bici12$weekday)
 
-
+#Gráficos de cada mes con los días de la semana y el conteo
 par(mfrow=c(2,2))
 
 enero <- subset(bici12, mnth== "1", select = c(mnth, weekday,cnt))
@@ -200,6 +200,7 @@ junio <- subset(bici12, mnth== "6", select = c(mnth, weekday,cnt))
 View(junio)
 plot(junio$weekday, junio$cnt)
 
+
 julio <- subset(bici12, mnth== "7", select = c(mnth, weekday,cnt))
 View(julio)
 plot(julio$weekday, julio$cnt)
@@ -224,6 +225,7 @@ dic <- subset(bici12, mnth== "12", select = c(mnth, weekday,cnt))
 View(dic)
 plot(dic$weekday, dic$cnt)
 
+#Gráficos de la estación del año, con los días y el conteo 
 primavera <- subset(bici12, season== "1", select = c(season, weekday,cnt))
 plot(primavera$weekday, primavera$cnt)
 
@@ -241,6 +243,7 @@ plot(invierno$weekday, invierno$cnt)
 # distribución de la variable respuesta
 
 library(shiny)
+#Función para generar los gráficos con las distribuciones
 four.hist <- function(k, f, p,datos) {
   dt <- datos
   mod <- fitDist(dt[, p], type=f, k=k)
@@ -269,18 +272,15 @@ four.hist <- function(k, f, p,datos) {
     legend('topright', bty='n',
            legend=eval(parse(text=paste('expression(', txt, ')'))))
   }
-}
+} 
 
-
-View(bici)
-aa <- hist(bici$cnt)
+hist(bici$cnt)
 four.hist(k = 2, f = "realplus", p= 10, datos = bici ) #GB2 Y GG
 four.hist(k = 2, f = "realAll", p= 10, datos = bici ) #SN2 Y SHASHo
 
-#GB2 
-#SHASHo u=8101.16 sigma=1937.63
+colnames(bici) #NOmbres de las variables de la base
 
-colnames(bici)
+# Los siguientes códigos son la variedad de modelos creados para hallar el mejor
 require(gamlss)
 
 mod1gb <- gamlss(cnt~season+workingday+weathersit+temp
@@ -305,7 +305,6 @@ mod1 <- gamlss(cnt~season+workingday+weathersit+temp
                control=gamlss.control(n.cyc=1000))
 summary(mod1)
 #
-
 mod2gb <- gamlss(cnt~season+workingday+weathersit+temp+I(temp^2)
                +hum+windspeed, data=bici, family = GB2,
                control=gamlss.control(n.cyc=1000))
@@ -412,13 +411,11 @@ mod6gg <- gamlss(cnt~season+workingday+weathersit+temp+I(temp^2)
                  control=gamlss.control(n.cyc=1000))
 summary(mod6gg)
 #
-
 mod6sn <- gamlss(cnt~season+workingday+weathersit+temp+I(temp^2)
                  +hum+windspeed+(temp*season), data=bici, family = SN2,
                  control=gamlss.control(n.cyc=1000))
 summary(mod6sn)
 #
-
 mod6 <- gamlss(cnt~season+workingday+weathersit+temp+I(temp^2)
                  +hum+windspeed+(temp*season), data=bici, family = SHASHo,
                  control=gamlss.control(n.cyc=1000))
@@ -437,21 +434,19 @@ mod9<- gamlss(cnt~season + workingday+ weathersit+ temp + I(temp^2) +
                 (hum* windspeed), data= bici,family = SHASHo,
               control = gamlss.control(n.cyc = 400))
 summary(mod9)
-
+#
 mod10gg <- gamlss(cnt ~ temp +I(temp^2) +I(temp^3) + weathersit + season  + 
                   windspeed +hum + workingday  + (temp*weathersit),
                 data = bici, family = GG,
                 control=gamlss.control(n.cyc=10000))
 summary(mod10gg)
 #
-
 mod10sn <- gamlss(cnt ~ temp +I(temp^2) +I(temp^3) + weathersit + season + 
                     windspeed +hum + workingday  + (temp*weathersit),
                   data = bici, family = SN2,
                   control=gamlss.control(n.cyc=10000))
 summary(mod10sn)
 #
-
 mod10 <- gamlss(cnt ~ temp +I(temp^2) +I(temp^3) + weathersit + season + 
                  windspeed +hum + workingday  + (temp*weathersit),
                data = bici, family = SHASHo,
@@ -530,14 +525,19 @@ mod13 <- gamlss(cnt ~ temp +I(temp^2) +I(temp^3)  + season +
                   control=gamlss.control(n.cyc=10000))
 summary(mod13)
 
+#Examinamos el AIC de los modelos creados
 
 GAIC(mod1gb,mod1gg,mod1sn,mod1,mod2gg,mod2sn,mod2,mod3gg,mod3sn,mod3,
-     mod4gg,mod4sn,mod4,mod5gb,mod5gg,mod5sn,mod5,mod6gg,mod6sn,mod6,mod7,mod9,
+     mod4gg,mod4sn,mod4,mod5gg,mod5sn,mod5,mod6gg,mod6sn,mod6,mod7,mod9,
      mod10,mod10gg,mod10sn,mod11gb,mod11gg,mod11sn,mod11,mod12gb,
      mod12gg,mod12sn,mod12,mod13gb,mod13gg,mod13sn,mod13)
 
+#Se eligen 5 modelos a mostrar
+
 aic <-GAIC(mod12,mod11,mod13gg,mod11sn,mod11gb)
 aic
+
+#Gráfico de gusano para los modelos a mostrar
 
 par(mfrow=c(2,2))
 wp(mod12)
@@ -545,16 +545,22 @@ wp(mod13gg)
 wp(mod11sn)
 wp(mod11gb)
 
+#Gráfico de gusano entre los dos mejores modelos
+
 par(mfrow=c(1,2))
 wp(mod12)
 wp(mod11)
 
+#Gráfico de residuales de los mejores modelos 
 plot(mod12)
+plot(mod11)
+
+#Se realiza selección de variables 
 
 require(MASS)
 
 horiz <- gamlss(cnt ~ temp +I(temp^2) +I(temp^3)  + season + 
-                   windspeed +hum,
+                   windspeed +hum + (temp*weathersit)+(temp*season),
                  data = bici, family = SHASHo,
                  control=gamlss.control(n.cyc=10000))
 
@@ -566,9 +572,7 @@ modforw <- stepAIC(empty.model, trace=T, direction="forward",
                    scope=list(upper=horiz,lower=empty.model))
 summary(modforw)
 
-
-#
-summary(mod12)
+# Y´S Ajustados para cada distribución y su correlación con Y 
 aic
 
 y <- bici$cnt
@@ -587,6 +591,7 @@ cor(yajus4,y)
 yajus5 <- fitted(mod13gg,newdata=bici)
 cor(yajus5,y)
 
+# R^2 ajustado para los modelos 
 Rsq(mod12)
 Rsq(mod11)
 Rsq(mod11sn)
