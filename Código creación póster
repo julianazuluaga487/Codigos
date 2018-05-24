@@ -1,0 +1,219 @@
+\documentclass{sciposter}
+
+\usepackage{epsfig}
+\usepackage{amsmath} % More math
+\usepackage{amssymb}
+\usepackage{multicol} % Multiple table columns
+\usepackage{graphicx} % Add colour support
+\usepackage{color}
+
+% To use Spanish
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+
+% To define box´s colors
+\definecolor{BoxCol}{rgb}{0.87,0.9,1}
+\definecolor{SectionCol}{rgb}{0,0,0.5}
+\definecolor{titlecolor}{rgb}{0,0,0.5}
+\definecolor{remarkcolor}{rgb}{0,0,0.5}
+
+% Titulo del poster
+\title{\textcolor{titlecolor}{Encicla versión gringa}}
+
+%\vspace{5cm}
+
+% Authors
+\author{Juliana Zuluaga Serna\\
+	Laura Tatiana Riveros Quintero}
+% Filiation
+\institute{Universidad Nacional de Colombia}
+% Mails
+\email{juzuluagase@unal.edu.co, ltriverosq@udea.edu.co}
+
+\leftlogo[2.0]{unal.png}  % defines logo to left of title (with scale factor)
+
+\vspace{1.5cm}
+%!-------------------------------------------------------------------------------
+\begin{document}
+
+\begin{boldmath}
+
+\maketitle
+
+%%% Begin of Multicols-Enviroment
+\begin{multicols}{3}
+
+%!-------------------------------------------------------------------------------
+
+\section{Capital Bikeshare}
+Este póster presenta los resultados de la encuesta del uso Capital Bikeshare de noviembre de 2011 y 2012 realizada para el programa Capital Bikeshare, un programa propiedad y patrocinado conjuntamente por el Distrito de Columbia, el Condado de Arlington, y la Ciudad de Alexandria, operado por Alta Bicycle Share, Inc., ofrece el uso a corto plazo de más de 1,650 bicicletas registradas. miembros y usuarios de pase diario en más de 175 estaciones. Capital Bikeshare permite desbloquear una bicicleta en cualquier estación. Los usuarios pueden devolver la bicicleta a la misma estación o a cualquier otra estación en la red.
+Hoy en día, existe un gran interés en estos sistemas debido a su importante papel en el tráfico, el medio ambiente y la salud. Además de las interesantes aplicaciones del mundo real de los sistemas para compartir bicicletas, las características de los datos que generan estos sistemas los hacen atractivos para la investigación.
+
+%\vspace{0.5cm}
+%!-------------------------------------------------------------------------------
+\section{Introduction}
+En este trabajo se busca analizar los datos de Capital Bikeshare con el objetivo de estudiar cómo influyen algunas características sobre el recuento total de alquiler de bicicletas. Vairiables a estudiar:
+\begin{enumerate}
+    \item Season: Primavera, Verano, Otoño, Invierno
+	\item mnth: 1 a 12 meses
+	\item weekday: 0 a 6 días
+	\item workingday: 1: jornada laboral, 0: de lo contrario
+	\item weathersit: 1: Agradable, 2: Nublado  , 3: Mojado 
+	\item temp: temperatura normalizada en Celsius
+	\item atemp: temperatura de sensación normalizada en Celsius
+	\item hum: humedad normalizada
+	\item windspeed: velocidad del viento normalizada
+	\item cnt: recuento de bicicletas de alquiler totales
+\end{enumerate}
+
+La base de datos original contiene 731 observaciones con 16 variables, con 8 cualitativas y 7 cuantitativas para los años 2011 y 2012. De esta base se extraerá otra base donde solo se trabajará con el año 2012, con esto nos quedan 366 observaciones.  
+
+
+%\vspace{0.5cm}
+%!-------------------------------------------------------------------------------
+\section{Analisis de la base de datos}
+\begin{figure}
+  \centering
+    \includegraphics{cuanti.pdf}
+  \caption{Gráficos de dispersión de variables cuantitativas}
+  \label{fig:ejemplo}
+\end{figure}
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|l|l||l|}
+\hline
+Weathersit & Temp mean & Cnt \\
+\hline \hline \hline
+1 & 0.523 & 1422885 \\ \hline
+2 & 0.472 & 613934 \\ \hline
+3 & 0.415 & 12757 \\ \hline
+\end{tabular}
+\caption{Clima,media temperatura y conteo }
+\label{tabla:sencilla}
+\end{center}
+\end{table}
+\begin{table}[htbp]
+\begin{center}
+\begin{tabular}{|l|l||l|}
+\hline
+Season & Temp mean & Cnt \\
+\hline \hline \hline
+1 & 0.322 & 321248 \\ \hline
+2 & 0.555 & 571273 \\ \hline
+3 & 0.711 & 641479 \\ \hline
+4 & 0.419 & 515476 \\ \hline
+\end{tabular}
+\caption{Estación,media temperatura y conteo }
+\label{tabla:sencilla}
+\end{center}
+\end{table}
+
+Se realizó un análisis exhaustivo de las variables meses y días del año con gráficos vs el conteo, la conclusión de la gráfica meses comparada con la gráfica de SvsC nos arrojó curvaturas similares para ambos, por esto se decidió trabajar solo con la variable estación. Para la variable días por semana el grafico nos arrojó una constancia en los días y con un análisis resulto no significativa con una confianza del 90\%. 
+Se realizó un análisis de multicolinialidad y basándonos en el Variance Inflation Factor (VIF), Debido a esto se decide tomar solo la variable temperatura. Se muestra el coeficiente de correlación de Pearson para el conteo de alquiler de bicicletas
+
+\begin{table} 
+  \begin{minipage}{0.5\textwidth} 
+    \centering 
+    \begin{tabular}{|l|l|}
+    \hline
+    Var & VIF \\
+    \hline \hline
+    Temp & 37.4603  \\ \hline
+    Atemp & 38.0145 \\ \hline
+    \end{tabular} 
+    \label{tab:primero} 
+  \end{minipage}% 
+  \begin{minipage}{0.5\textwidth} 
+    \centering 
+    \begin{tabular}{|l|l|}
+    \hline
+    Var & Corr \\
+    \hline \hline
+    Temp & 0.714  \\ \hline
+    Hum & -0.089 \\ \hline
+    Windspeed & -0.279 \\ \hline
+    \end{tabular}
+    \label{tab:segundo} 
+  \end{minipage} 
+\end{table} 
+%!-------------------------------------------------------------------------------
+\section{Grafico de las mejores Distribuciónes para la variable respuesta}
+\begin{figure}
+  \centering
+    \includegraphics{Doc4.pdf}
+  \label{fig:ejemplo}
+\end{figure}
+
+Se eligieron estas cuatro distribuciones para el análisis de los modelos,
+con estas distribuciones se analizaron 37 modelos variando los parámetros
+de los cuales se eligieron los mejores con el criterio AIC.
+%!-------------------------------------------------------------------------------
+
+\section{Resultados}
+
+
+\begin{table}[htbp]
+\begin{raggedright}
+\begin{tabular}{|l|l|l|l|l|l|l|}
+\hline
+MODELO & DIS & AIC & COR & R^2 & N.VAR & N.VAR SIG \\
+
+\hline \hline
+
+
+Modelo 1 &  SHASHo & 5869.8 & 0.884 & 0.80 & 8 & 8 \\ \hline 
+
+Modelo 2 & GB2 & 5951.5 & 0.900 & 0.76 & 12 & 10 \\ \hline
+
+Modelo 3 & GG & 6000.6 & 0.881 & 0.72 & 11 & 10 \\ \hline
+
+Modelo 4 & SN2 & 5878.9 & 0.907 & 0.80 & 12 & 9 \\ \hline
+
+Modelo 5 & SHASHo & 5836.8 & 0.904 & 0.82 & 12 & 9 \\ \hline
+
+\end{tabular}
+\end{raggedright}
+\end{table}
+Los modelos mencionados en la tabla no se muestran en el póster debido al exceso de variables y betas estimados, lo cual generaba saturación de texto. Se obtuvo como modelo final el modelo 1
+
+\widehat{C} = 4624.12 - 50383.27 T^3 + 53417.85 T^2 - 6998.23 T + 730.22 S2 + 1240.10 S3 + 1555.22 S4 - 3053.54 H -3231.38  W.
+
+Donde T= Temperatura, S= Estación, H= Humedad, W= Velocidad del viento
+
+Concluimos al hacer la selección de variables que la iteración de temp*season no mejoraba el modelo y resulto no significativa eliminando nuestra hipótesis del comienzo de que podía influenciar. Así mismo la iteración de la temp*weathersit fue significativa para el clima 3 (Mod5) pero al hacer el análisis de los modelos con y sin esa variable nos mostró que no variaba mucho el AIC (Mod1) ni las otras pruebas que se hicieron, así por menor cantidad de parámetros se eligió el modelo sin esta variable.
+
+
+\begin{figure}
+  \centering
+    \includegraphics{gusanomodbici.pdf}
+    \caption{Grafico de gusano para los mejores modelos}
+  \label{fig:ejemplo}
+\end{figure}
+
+Gráfico 1- dist SHASHo, 2- dist GG, 3- dist SN2, 4- dist GB2. Con este gráfico se puede ver claramente que el modelo SHASHo es el que mejor ajusta debido los puntos no sobresalen las bandas de confianza y se acerca mas a la recta horizontal.
+
+%!-------------------------------------------------------------------------------
+\section{Conclusiones}
+
+Para el conteo de alquiler de bicicletas en Capital Bikeshare fue influenciada en gran parte por la temperatura, la estación del año, la humedad y la velocidad del viento. Indicándonos que a menor temperatura menor número de alquiler de bicicletas, que en las estaciones del año Otoño fue de las más significativas para el conteo de alquiler de bicicletas confirmando las tablas analizadas donde esta estación es la de mayor número de bicicletas que se alquilaron. 
+
+%!-------------------------------------------------------------------------------
+\section*{Referencias}
+\begin{description}
+\item Base de datos: 'https://data.world/uci/bike-sharing-dataset'
+     
+\item Programa para trabajar los codigos RStudio
+     
+\item [Mikis Stasinopoulos, Bob Rigby and Calliope Akantziliotou](January 11, 2008) Instructions on how to use the gamlss package in R Second Edition
+A.3.5 Sinh-Arcsinh (SHASH) página 186
+\item Para conocer más sobre los coeficientes de los modelos y/o el código utilizado para el análisis de datos, ingresar a: https://github.com/julianazuluaga487/codigos/blob/master
+/posterbici.R
+\end{description}
+
+
+%!-------------------------------------------------------------------------------
+\end{multicols}
+\end{boldmath}
+\end{document}
+%!-------------------------------------------------------------------------------
