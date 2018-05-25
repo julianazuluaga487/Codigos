@@ -19,7 +19,7 @@
 \definecolor{remarkcolor}{rgb}{0,0,0.5}
 
 % Titulo del poster
-\title{\textcolor{titlecolor}{Encicla versión gringa}}
+\title{\textcolor{titlecolor}{ENCICLA VERSIÓN GRINGA}}
 
 %\vspace{5cm}
 
@@ -29,11 +29,15 @@
 % Filiation
 \institute{Universidad Nacional de Colombia}
 % Mails
-\email{juzuluagase@unal.edu.co, ltriverosq@udea.edu.co}
+\email{juzuluagase@unal.edu.co, ltriverosq@unal.edu.co}
 
 \leftlogo[2.0]{unal.png}  % defines logo to left of title (with scale factor)
 
+\rightlogo[1.0]{static_qr_code_without_logo.jpg}
+
 \vspace{1.5cm}
+
+
 %!-------------------------------------------------------------------------------
 \begin{document}
 
@@ -64,7 +68,6 @@ En este trabajo se busca analizar los datos de Capital Bikeshare con el objetivo
 	\item atemp: temperatura de sensación normalizada en Celsius
 	\item hum: humedad normalizada
 	\item windspeed: velocidad del viento normalizada
-	\item cnt: recuento de bicicletas de alquiler totales
 \end{enumerate}
 
 La base de datos original contiene 731 observaciones con 16 variables, con 8 cualitativas y 7 cuantitativas para los años 2011 y 2012. De esta base se extraerá otra base donde solo se trabajará con el año 2012, con esto nos quedan 366 observaciones.  
@@ -145,9 +148,7 @@ Se realizó un análisis de multicolinialidad y basándonos en el Variance Infla
   \label{fig:ejemplo}
 \end{figure}
 
-Se eligieron estas cuatro distribuciones para el análisis de los modelos,
-con estas distribuciones se analizaron 37 modelos variando los parámetros
-de los cuales se eligieron los mejores con el criterio AIC.
+Se eligieron estas cuatro distribuciones para el análisis de los modelos, con estas distribuciones se analizaron 37 modelos variando los parámetros y haciendo en cada uno selección de variables con stepGAIC (Para saber sobre los procesos con gamlss consultar nuestras referencias los libros mencionados y códigos) de los cuales se eligieron los mejores con el criterio AIC.
 %!-------------------------------------------------------------------------------
 
 \section{Resultados}
@@ -157,7 +158,7 @@ de los cuales se eligieron los mejores con el criterio AIC.
 \begin{raggedright}
 \begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
-MODELO & DIS & AIC & COR & R^2 & N.VAR & N.VAR SIG \\
+MODELO & DIS & AIC & COR & PSEUDO & VAR & VARSIG \\
 
 \hline \hline
 
@@ -175,11 +176,14 @@ Modelo 5 & SHASHo & 5836.8 & 0.904 & 0.82 & 12 & 9 \\ \hline
 \end{tabular}
 \end{raggedright}
 \end{table}
-Los modelos mencionados en la tabla no se muestran en el póster debido al exceso de variables y betas estimados, lo cual generaba saturación de texto. Se obtuvo como modelo final el modelo 1
+Las columnas de la tabla nos muestran los mejores 5 modelos, su respectiva distribución, su AIC, su correlación, el PSEUDO que es un R-cuadrado generalizado para modelos gamlss, el número total de variables y el número de variables significativas. Los modelos mencionados en la tabla no se muestran en el póster debido al exceso de variables y betas estimados, lo cual generaba saturación de texto. Se obtuvo como modelo final el modelo 1.
 
-\widehat{C} = 4624.12 - 50383.27 T^3 + 53417.85 T^2 - 6998.23 T + 730.22 S2 + 1240.10 S3 + 1555.22 S4 - 3053.54 H -3231.38  W.
+\begin{eqnarray}
+\hat{C} = \hat{\beta_0} + \hat{\beta_1} T +\hat{\beta_2} T^2 + \hat{\beta_3} T^3 + \hat{\beta_4} S2 + \hat{\beta_5} S3 \nonumber\\
++ \hat{\beta_6} S4 + \hat{\beta_7} H + \hat{\beta_8}  W 
+\end{eqnarray}
 
-Donde T= Temperatura, S= Estación, H= Humedad, W= Velocidad del viento
+Donde C = Es la estimación del recuento total de alquiler de bicicletas  T= Temperatura, S= Estación, H= Humedad, W= Velocidad del viento, y sus respectivos betas estimados para cada variable.
 
 Concluimos al hacer la selección de variables que la iteración de temp*season no mejoraba el modelo y resulto no significativa eliminando nuestra hipótesis del comienzo de que podía influenciar. Así mismo la iteración de la temp*weathersit fue significativa para el clima 3 (Mod5) pero al hacer el análisis de los modelos con y sin esa variable nos mostró que no variaba mucho el AIC (Mod1) ni las otras pruebas que se hicieron, así por menor cantidad de parámetros se eligió el modelo sin esta variable.
 
@@ -191,24 +195,27 @@ Concluimos al hacer la selección de variables que la iteración de temp*season 
   \label{fig:ejemplo}
 \end{figure}
 
-Gráfico 1- dist SHASHo, 2- dist GG, 3- dist SN2, 4- dist GB2. Con este gráfico se puede ver claramente que el modelo SHASHo es el que mejor ajusta debido los puntos no sobresalen las bandas de confianza y se acerca mas a la recta horizontal.
+Gráfico 1- Modelo1, 2- Modelo3, 3- Modelo4, 4- Modelo2 (Observando de izquierda a derecha). Con este gráfico se puede ver claramente que el modelo1 con SHASHo es el que mejor ajusta debido los puntos no sobresalen las bandas de confianza y se acerca mas a la recta horizontal.
 
 %!-------------------------------------------------------------------------------
 \section{Conclusiones}
 
-Para el conteo de alquiler de bicicletas en Capital Bikeshare fue influenciada en gran parte por la temperatura, la estación del año, la humedad y la velocidad del viento. Indicándonos que a menor temperatura menor número de alquiler de bicicletas, que en las estaciones del año Otoño fue de las más significativas para el conteo de alquiler de bicicletas confirmando las tablas analizadas donde esta estación es la de mayor número de bicicletas que se alquilaron. 
+Para el conteo de alquiler de bicicletas en Capital Bikeshare nos mostró que es influenciada en gran parte por la temperatura, la estación del año, la humedad y la velocidad del viento. Indicándonos que a menor temperatura menor número de alquiler de bicicletas, que en las estaciones del año Otoño fue de las más significativas para el conteo de alquiler de bicicletas confirmando las tablas analizadas donde esta estación es la de mayor número de bicicletas que se alquilaron. 
 
 %!-------------------------------------------------------------------------------
 \section*{Referencias}
 \begin{description}
 \item Base de datos: 'https://data.world/uci/bike-sharing-dataset'
      
-\item Programa para trabajar los codigos RStudio
+\item Programa en el que se trabajaron los códigos RStudio
      
-\item [Mikis Stasinopoulos, Bob Rigby and Calliope Akantziliotou](January 11, 2008) Instructions on how to use the gamlss package in R Second Edition
+\item \textbf{Mikis Stasinopoulos, Bob Rigby and Calliope Akantziliotou}(January 11, 2008) Instructions on how to use the gamlss package in R Second Edition
 A.3.5 Sinh-Arcsinh (SHASH) página 186
-\item Para conocer más sobre los coeficientes de los modelos y/o el código utilizado para el análisis de datos, ingresar a: https://github.com/julianazuluaga487/codigos/blob/master
-/posterbici.R
+\item  Sobre los coeficientes de los modelos y/o el código utilizado para el análisis, ingresar a: https://github.com/julianazuluaga487/codigos/blob/master
+/posterbici.R, o escanear el código QR de la parte superior derecha.
+\item \textbf{Mikis D. Stasinopoulos, Robert A. Rigby, Gillian Z. Heller, Vlasios Voudorius, Fernanda De Bastiani}
+(Version 2017),
+Flexible Regression and Smoothing Using GAMLSS in R
 \end{description}
 
 
